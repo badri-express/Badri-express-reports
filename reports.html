@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تقارير الشحنات - البدري إكسبريس</title>
+  <style>
+    body {
+      font-family: "Cairo", sans-serif;
+      background: linear-gradient(to right, #0fd9d9, #0f8cd9);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 32px;
+    }
+
+    select, input[type="password"], input[type="text"], button {
+      padding: 14px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      width: 280px;
+      background-color: #f9f9f9;
+      color: #000;
+    }
+
+    .eye-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .eye-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      cursor: pointer;
+      color: #333;
+    }
+
+    label {
+      font-size: 16px;
+    }
+
+    table {
+      width: 95%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: #fff;
+      color: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 16px;
+    }
+
+    table th, table td {
+      padding: 12px;
+      border: 1px solid #ccc;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    button {
+      background-color: #ff8c00;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e67600;
+    }
+  </style>
+</head>
+<body>
+  <h1>تقارير الشحنات - البدري إكسبريس</h1>
+
+  <div id="login-form">
+    <select id="company">
+      <option disabled selected>اختر الشركة</option>
+      <option value="E">إنيرجي</option>
+      <option value="J">الجوكر</option>
+      <option value="D">داما</option>
+      <option value="H">الهواري</option>
+      <option value="F">الفهد</option>
+    </select><br/>
+
+    <select id="area">
+      <option disabled selected>اختر المنطقة</option>
+      <option>سفاجا</option>
+      <option>القصير</option>
+      <option>غارب</option>
+      <option>احياء</option>
+      <option>ابو</option>
+      <option>جبريل</option>
+      <option>كوثر</option>
+      <option>حفر</option>
+      <option>جونة</option>
+      <option>شيري</option>
+      <option>سقالة</option>
+      <option>مدارس</option>
+      <option>ذهب</option>
+      <option>كهف</option>
+      <option>دهار</option>
+      <option>رشاد</option>
+      <option>محمود</option>
+      <option>وليد</option>
+      <option>مكتب</option>
+      <option>سوماباي</option>
+      <option>سهل</option>
+      <option>مكادي</option>
+    </select><br/>
+
+    <div class="eye-container">
+      <input type="password" id="access-code" placeholder="رمز الدخول" />
+      <span class="eye-icon" onclick="togglePassword()">👁️</span>
+    </div><br/>
+
+    <label><input type="checkbox" id="rememberMe" /> تذكرني</label><br/>
+
+    <button onclick="validateAccess()">عرض التقرير</button>
+  </div>
+
+  <div id="summary" class="hidden">
+    <h2>ملخص التقرير</h2>
+    <div id="summary-data">تحميل البيانات...</div>
+    <button onclick="showDetails()">تفاصيل التقرير</button>
+  </div>
+
+  <div id="details" class="hidden">
+    <h3>تفاصيل الشحنات</h3>
+    <table id="details-table">
+      <thead>
+        <tr>
+          <th>رقم الشحنة</th>
+          <th>اسم العميل</th>
+          <th>رقم الهاتف</th>
+          <th>المبلغ المطلوب</th>
+          <th>الموقف</th>
+          <th>المبلغ المحصل</th>
+          <th>العمولة</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- بيانات الشحنات -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const areaCodes = {
+      "سفاجا": "101",
+      "القصير": "102",
+      "غارب": "103",
+      "احياء": "104",
+      "ابو": "105",
+      "جبريل": "106",
+      "كوثر": "107",
+      "حفر": "108",
+      "جونة": "109",
+      "شيري": "110",
+      "سقالة": "111",
+      "مدارس": "112",
+      "ذهب": "113",
+      "كهف": "114",
+      "دهار": "115",
+      "رشاد": "116",
+      "محمود": "117",
+      "وليد": "118",
+      "مكتب": "119",
+      "سوماباي": "120",
+      "سهل": "121",
+      "مكادي": "122"
+    };
+
+    function togglePassword() {
+      const input = document.getElementById("access-code");
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function validateAccess() {
+      const company = document.getElementById("company").value;
+      const area = document.getElementById("area").value;
+      const code = document.getElementById("access-code").value.trim().toUpperCase();
+      const expectedCode = company + areaCodes[area];
+
+      if (code === expectedCode) {
+        if (document.getElementById("rememberMe").checked) {
+          const expiry = new Date().getTime() + 15 * 60 * 1000;
+          localStorage.setItem("access", JSON.stringify({ company, area, code, expiry }));
+        }
+        loadSummary();
+      } else {
+        alert("رمز الدخول غير صحيح.");
+      }
+    }
+
+    function loadSummary() {
+      document.getElementById("login-form").classList.add("hidden");
+      document.getElementById("summary").classList.remove("hidden");
+
+      // بيانات تجريبية
+      document.getElementById("summary-data").innerHTML = `
+        <p>عدد الشحنات: 25</p>
+        <p>استلم: 10 | لا يرد: 5 | مغلق: 3 | رفض ورفض: 2 | عهدة: 5</p>
+        <p>إجمالي المحصل: 3500 جنيه</p>
+        <p>إجمالي العمولة: 250 جنيه</p>
+        <p>المبلغ الواجب سداده: 3250 جنيه</p>
+      `;
+    }
+
+    function showDetails() {
+      document.getElementById("details").classList.remove("hidden");
+
+      const table = document.querySelector("#details-table tbody");
+      table.innerHTML = "";
+
+      const sample = [
+        ["123", "أحمد علي", "01000000000", "500", "استلم", "500", "25"],
+        ["124", "منى حسن", "01000000001", "300", "لا يرد", "0", "0"],
+        ["125", "عمرو شريف", "01000000002", "250", "استلم", "250", "25"]
+      ];
+
+      sample.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach(cell => {
+          const td = document.createElement("td");
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+    }
+
+    // تفعيل التذكر بعد تحميل الصفحة
+    window.onload = () => {
+      const saved = JSON.parse(localStorage.getItem("access"));
+      const now = new Date().getTime();
+      if (saved && now < saved.expiry) {
+        document.getElementById("company").value = saved.company;
+        document.getElementById("area").value = saved.area;
+        document.getElementById("access-code").value = saved.code;
+      }
+    };
+  </script>
+</body>
+</html>
